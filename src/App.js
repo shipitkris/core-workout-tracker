@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "./components/ui/Card";
+import { Button } from "./components/ui/Button";
 
 const CoreWorkoutTracker = () => {
     const [workouts, setWorkouts] = useState([]);
