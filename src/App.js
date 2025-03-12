@@ -3,32 +3,43 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts"
 import { Card, CardContent } from "./components/ui/Card";
 import { Button } from "./components/ui/Button";
 
+// 🔹 Import Firebase functions at the TOP (not inside a function)
+import { db, collection, addDoc, getDocs } from "./firebase";  
+
 const CoreWorkoutTracker = () => {
     const [workouts, setWorkouts] = useState([]);
-
-    // 🔹 Load saved workouts from localStorage when the page loads
-    useEffect(() => {
-        const savedWorkouts = JSON.parse(localStorage.getItem("workouts")) || [];
-        setWorkouts(savedWorkouts);
-    }, []);
-
     const [plank, setPlank] = useState(0);
     const [legRaises, setLegRaises] = useState(0);
     const [crunches, setCrunches] = useState(0);
     const [points, setPoints] = useState(0);
 
-    // 🔹 Log workout and save to localStorage
-    const logWorkout = () => {
-        const newWorkout = { date: new Date().toLocaleDateString(), plank, legRaises, crunches };
-        const updatedWorkouts = [...workouts, newWorkout];
-        setWorkouts(updatedWorkouts);
-        localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+    // 🔹 Load workouts from Firestore on page load
+    useEffect(() => {
+        loadWorkouts();
+    }, []);
 
-        // 🔹 Calculate and save earned points
-        const earnedPoints = (plank / 10) + (legRaises / 5) + (crunches / 5);
-        const newPoints = points + earnedPoints;
-        setPoints(newPoints);
-        localStorage.setItem("points", JSON.stringify(newPoints));
+    const logWorkout = async () => {
+        const newWorkout = { date: new Date().toLocaleDateString(), plank, legRaises, crunches };
+
+        try {
+            await addDoc(collection(db, "workouts"), newWorkout);
+            console.log("Workout saved to Firestore");
+
+            // Refresh workouts from Firestore after saving
+            loadWorkouts();
+        } catch (error) {
+            console.error("Error saving workout:", error);
+        }
+    };
+
+    const loadWorkouts = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "workouts"));
+            const savedWorkouts = querySnapshot.docs.map(doc => doc.data());
+            setWorkouts(savedWorkouts);
+        } catch (error) {
+            console.error("Error loading workouts:", error);
+        }
     };
 
     return (
