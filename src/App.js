@@ -4,7 +4,7 @@ import { Card, CardContent } from "./components/ui/Card";
 import { Button } from "./components/ui/Button";
 
 // 🔹 Import Firebase functions at the TOP (not inside a function)
-import { db, collection, addDoc, getDocs } from "./firebase";  
+import { db, collection, addDoc, getDocs, deleteDoc, doc } from "./firebase";
 
 const CoreWorkoutTracker = () => {
     const [workouts, setWorkouts] = useState([]);
@@ -22,8 +22,8 @@ const CoreWorkoutTracker = () => {
         const newWorkout = { date: new Date().toLocaleDateString(), plank, legRaises, crunches };
 
         try {
-            await addDoc(collection(db, "workouts"), newWorkout);
-            console.log("Workout saved to Firestore");
+            const docRef = await addDoc(collection(db, "workouts"), newWorkout);
+            console.log("Workout saved to Firestore", docRef.id);
 
             // Refresh workouts from Firestore after saving
             loadWorkouts();
@@ -35,10 +35,20 @@ const CoreWorkoutTracker = () => {
     const loadWorkouts = async () => {
         try {
             const querySnapshot = await getDocs(collection(db, "workouts"));
-            const savedWorkouts = querySnapshot.docs.map(doc => doc.data());
+            const savedWorkouts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setWorkouts(savedWorkouts);
         } catch (error) {
             console.error("Error loading workouts:", error);
+        }
+    };
+
+    const deleteWorkout = async (id) => {
+        try {
+            await deleteDoc(doc(db, "workouts", id));
+            console.log("Workout deleted: ", id);
+            loadWorkouts();
+        } catch (error) {
+            console.error("Error deleting workout:", error);
         }
     };
 
@@ -75,6 +85,20 @@ const CoreWorkoutTracker = () => {
                         <Line type="monotone" dataKey="legRaises" stroke="#82ca9d" />
                         <Line type="monotone" dataKey="crunches" stroke="#ffc658" />
                     </LineChart>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardContent>
+                    <h2 className="text-lg font-semibold mb-2">Workout History</h2>
+                    <ul>
+                        {workouts.map((workout) => (
+                            <li key={workout.id} className="flex justify-between items-center p-2 border-b">
+                                {workout.date}: Plank {workout.plank}s, Leg Raises {workout.legRaises}, Crunches {workout.crunches}
+                                <Button onClick={() => deleteWorkout(workout.id)}>Delete</Button>
+                            </li>
+                        ))}
+                    </ul>
                 </CardContent>
             </Card>
         </div>

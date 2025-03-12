@@ -1,17 +1,18 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore"; 
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore"; 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDm-rTXDp9U8oU2bBfMb3c9PHbAVCpu32s",
-  authDomain: "core-workout-tracker-4747f.firebaseapp.com",
-  projectId: "core-workout-tracker-4747f",
-  storageBucket: "core-workout-tracker-4747f.firebasestorage.app",
-  messagingSenderId: "783979101341",
-  appId: "1:783979101341:web:2ae64aaa76d9294516a874"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_ID",
+  appId: "YOUR_APP_ID"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export { db, collection, addDoc, getDocs };
+// 🔹 Export missing Firestore functions
+export { db, collection, addDoc, getDocs, deleteDoc, doc };
